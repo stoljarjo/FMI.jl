@@ -31,42 +31,32 @@ Returns the FMU's dependency-matrix for fast look-ups on dependencies between va
 Entries are from type fmi2DependencyKind.
 """
 function fmi2GetDependencies(fmu::FMU2)
-    if !isdefined(fmu, :dependencies)
-        dim = length(fmu.modelDescription.valueReferences)
-        @info "fmi2GetDependencies: Started building dependency matrix $(dim) x $(dim) ..."
+    if isdefined(fmu, :dependencies)
+        return fmu.dependencies
+    end
 
-        if fmi2DependenciesSupported(fmu.modelDescription)
-            fmu.dependencies = fill(nothing, dim, dim)
+    dim = length(fmu.modelDescription.valueReferences)
+    @info "fmi2GetDependencies: Started building dependency matrix $(dim) x $(dim) ..."
 
-            for i in 1:dim
-                modelVariable = fmi2ModelVariablesForValueReference(fmu.modelDescription, fmu.modelDescription.valueReferences[i])[1]
-    
-                if modelVariable.dependencies !== nothing
-                    indicies = collect(fmu.modelDescription.valueReferenceIndicies[fmu.modelDescription.modelVariables[dependency].valueReference] for dependency in modelVariable.dependencies)
-                    dependenciesKind = modelVariable.dependenciesKind
+    fmu.dependencies = fill(0, dim, dim)
 
-                    k = 1
-                    for j in 1:dim 
-                        if j in indicies
-                            if dependenciesKind[k] == "fixed"
-                                fmu.dependencies[i,j] = fmi2DependencyKindFixed
-                            elseif dependenciesKind[k] == "dependent"
-                                fmu.dependencies[i,j] = fmi2DependencyKindDependent
-                            else 
-                                @warn "Unknown dependency kind for index ($i, $j) = `$(dependenciesKind[k])`."
-                            end
-                            k += 1
-                        end
-                    end
+    if fmi2DependenciesSupported(fmu.modelDescription)
+        for derivative in fmu.modelDescription.modelStructure.derivatives
+            @assert derivative.index <= dim ["fmi2GetDependencies: Index missmatch between derivative index $(derivative.index) and dimension $(dim)."]
+            index = derivative.index
+            for depend in zip(derivative.dependencies, derivative.dependenciesKind)
+                dependency, dependencyKind = depend
+                @assert dependency <= dim ["fmi2GetDependencies: Index missmatch between dependency index $(dependency) and dimension $(dim)."]
+                if dependencyKind == fmi2DependencyKindFixed || dependencyKind == fmi2DependencyKindDependent 
+                    fmu.dependencies[index,dependency] = 1
+                else 
+                    @warn "Unknown dependency kind for index ($index, $dependency) = `$(fmi2DependencyKind(dependencyKind))`."
                 end
-            end 
-        else 
-            fmu.dependencies = fill(nothing, dim, dim)
+            end
         end
-
-        @info "fmi2GetDependencies: Building dependency matrix $(dim) x $(dim) finished."
-    end 
-
+    end
+    
+    @info "fmi2GetDependencies: Building dependency matrix $(dim) x $(dim) finished."
     fmu.dependencies
 end
 
