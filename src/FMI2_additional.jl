@@ -48,7 +48,7 @@ function fmi2GetDependencies(fmu::FMU2)
                 dependency, dependencyKind = depend
                 @assert dependency <= dim ["fmi2GetDependencies: Index missmatch between dependency index $(dependency) and dimension $(dim)."]
                 if dependencyKind == fmi2DependencyKindFixed || dependencyKind == fmi2DependencyKindDependent 
-                    fmu.dependencies[index,dependency] = 1
+                    fmu.dependencies[index,dependency] = dependencyKind
                 else 
                     @warn "Unknown dependency kind for index ($index, $dependency) = `$(fmi2DependencyKind(dependencyKind))`."
                 end
