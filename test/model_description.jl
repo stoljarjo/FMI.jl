@@ -3,9 +3,9 @@
 # Licensed under the MIT license. See LICENSE file in the project root for details.
 #
 
-using FMI: fmi2VariableNamingConventionStructured, fmi2DependencyKindDependent, fmi2DependencyKindFixed
+using FMI: fmi2VariableNamingConventionStructured, fmi2DependencyKindDependent, fmi2DependencyKindFixed, fmi2GetDependencies
 
-myFMU = fmiLoad("SpringDFrictionPendulum1D", ENV["EXPORTINGTOOL"], ENV["EXPORTINGVERSION"])
+myFMU = fmiLoad("SpringFrictionPendulum1D", ENV["EXPORTINGTOOL"], ENV["EXPORTINGVERSION"])
 
 @test fmiGetVersion(myFMU) == "2.0"
 @test fmiGetTypesPlatform(myFMU) == "default"
