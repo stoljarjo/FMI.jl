@@ -26,7 +26,7 @@ function fmi2VariableDependsOnVariable(fmu::FMU2, vr1::fmi2ValueReference, vr2::
 end
 
 """
-Returns the FMU's dependency-matrix for fast look-ups on dependencies between value references.
+Returns the FMU's dependency-matrix for fast look-ups on derivative dependencies between value references.
 
 Entries are from type fmi2DependencyKind.
 """
@@ -38,13 +38,13 @@ function fmi2GetDependencies(fmu::FMU2)
     dim = length(fmu.modelDescription.valueReferences)
     @info "fmi2GetDependencies: Started building dependency matrix $(dim) x $(dim) ..."
 
-    fmu.dependencies = fill(0, dim, dim)
+    fmu.dependencies = fill(nothing, dim, dim)
 
-    if fmi2DependenciesSupported(fmu.modelDescription)
-        for derivative in fmu.modelDescription.modelStructure.derivatives
-            @assert derivative.index <= dim ["fmi2GetDependencies: Index missmatch between derivative index $(derivative.index) and dimension $(dim)."]
-            index = derivative.index
-            for depend in zip(derivative.dependencies, derivative.dependenciesKind)
+    if fmi2DerivativeDependenciesSupported(fmu.modelDescription)
+        for der in fmu.modelDescription.modelStructure.derivatives
+            @assert der.index <= dim ["fmi2GetDependencies: Index missmatch between derivative index $(der.index) and dimension $(dim)."]
+            index = der.index
+            for depend in zip(der.dependencies, der.dependenciesKind)
                 dependency, dependencyKind = depend
                 @assert dependency <= dim ["fmi2GetDependencies: Index missmatch between dependency index $(dependency) and dimension $(dim)."]
                 if dependencyKind == fmi2DependencyKindFixed || dependencyKind == fmi2DependencyKindDependent 
