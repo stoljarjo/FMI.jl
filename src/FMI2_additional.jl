@@ -35,7 +35,7 @@ function fmi2GetDependencies(fmu::FMU2)
         return fmu.dependencies
     end
 
-    dim = length(fmu.modelDescription.valueReferences)
+    dim = length(fmu.modelDescription.modelVariables)
     @info "fmi2GetDependencies: Started building dependency matrix $(dim) x $(dim) ..."
 
     fmu.dependencies = fill(nothing, dim, dim)
