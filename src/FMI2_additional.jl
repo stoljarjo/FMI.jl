@@ -52,7 +52,7 @@ function fmi2GetDependencies(fmu::FMU2)
             end
 
             for depend in zip(der.dependencies, der.dependenciesKind)
-                depIndex = myFMU.modelDescription.valueReferenceIndicies[depend[1]]
+                depIndex = fmu.modelDescription.valueReferenceIndicies[depend[1]]
 
                 @assert depIndex <= dim ["fmi2GetDependencies: Index missmatch between dependency index $(depIndex) and dimension $(dim)."]
                 if depend[2] == fmi2DependencyKindFixed || depend[2] == fmi2DependencyKindDependent 
