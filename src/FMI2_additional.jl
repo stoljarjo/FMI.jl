@@ -44,13 +44,21 @@ function fmi2GetDependencies(fmu::FMU2)
         for der in fmu.modelDescription.modelStructure.derivatives
             @assert der.index <= dim ["fmi2GetDependencies: Index missmatch between derivative index $(der.index) and dimension $(dim)."]
             index = der.index
+            
+            if der.dependencies === nothing
+                vKnown = fmu.modelDescription.stateValueReferences
+                der.dependencies = vKnown
+                der.dependenciesKind = fill(fmi2DependencyKindDependent, length(vKnown))                 
+            end
+
             for depend in zip(der.dependencies, der.dependenciesKind)
-                dependency, dependencyKind = depend
-                @assert dependency <= dim ["fmi2GetDependencies: Index missmatch between dependency index $(dependency) and dimension $(dim)."]
-                if dependencyKind == fmi2DependencyKindFixed || dependencyKind == fmi2DependencyKindDependent 
-                    fmu.dependencies[index,dependency] = dependencyKind
+                depIndex = myFMU.modelDescription.valueReferenceIndicies[depend[1]]
+
+                @assert depIndex <= dim ["fmi2GetDependencies: Index missmatch between dependency index $(depIndex) and dimension $(dim)."]
+                if depend[2] == fmi2DependencyKindFixed || depend[2] == fmi2DependencyKindDependent 
+                    fmu.dependencies[index,depIndex] = depend[2]
                 else 
-                    @warn "Unknown dependency kind for index ($index, $dependency) = `$(fmi2DependencyKind(dependencyKind))`."
+                    @warn "Unknown dependency kind for index ($index, $depIndex) = `$(fmi2DependencyKind(depend[2]))`."
                 end
             end
         end
