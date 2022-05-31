@@ -74,7 +74,11 @@ function fmi2PrintDependencies(fmu::FMU2)
     for i in 1:ni
         str = ""
         for j in 1:nj
-            str = "$(str) $(Integer(dep[i,j]))"
+            if dep[i,j] !== nothing
+                str = "$(str) $(Integer(dep[i,j]))"
+            else
+                str = "$(str) -"
+            end
         end 
         println(str)
     end
