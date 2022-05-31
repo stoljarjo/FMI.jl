@@ -47,18 +47,17 @@ function fmi2GetDependencies(fmu::FMU2)
             
             if der.dependencies === nothing
                 vKnown = fmu.modelDescription.stateValueReferences
-                der.dependencies = vKnown
-                der.dependenciesKind = fill(fmi2DependencyKindDependent, length(vKnown))                 
+                vKnownIndex = collect(fmu.modelDescription.valueReferenceIndicies[vr] for vr in vKnown)
+                der.dependencies = vKnownIndex
+                der.dependenciesKind = fill(fmi2DependencyKindDependent, length(vKnownIndex))                 
             end
 
             for depend in zip(der.dependencies, der.dependenciesKind)
-                depIndex = fmu.modelDescription.valueReferenceIndicies[depend[1]]
-
-                @assert depIndex <= dim ["fmi2GetDependencies: Index missmatch between dependency index $(depIndex) and dimension $(dim)."]
+                @assert depend[1] <= dim ["fmi2GetDependencies: Index missmatch between dependency index $(depend[1]) and dimension $(dim)."]
                 if depend[2] == fmi2DependencyKindFixed || depend[2] == fmi2DependencyKindDependent 
-                    fmu.dependencies[index,depIndex] = depend[2]
+                    fmu.dependencies[index,depend[1]] = depend[2]
                 else 
-                    @warn "Unknown dependency kind for index ($index, $depIndex) = `$(fmi2DependencyKind(depend[2]))`."
+                    @warn "Unknown dependency kind for index ($index, $depend[1]) = `$(fmi2DependencyKind(depend[2]))`."
                 end
             end
         end
