@@ -12,7 +12,7 @@ using FMIImport: FMU2, fmi2ModelDescription
 using FMIImport: fmi2Boolean, fmi2Real, fmi2Integer, fmi2Byte, fmi2String, fmi2FMUstate
 using FMIImport: fmi2True, fmi2False
 using FMIImport: fmi2StatusKind, fmi2Status
-using FMIImport: fmi2DependencyKindDependent, fmi2DependencyKindFixed
+using FMIImport: fmi2DependencyKind, fmi2DependencyKindIndependent
 using FMIImport: fmi2CallbackFunctions, fmi2Component
 import FMIImport: fmi2VariableNamingConventionFlat, fmi2VariableNamingConventionStructured
 
@@ -38,7 +38,7 @@ function fmi2GetDependencies(fmu::FMU2)
     dim = length(fmu.modelDescription.modelVariables)
     @info "fmi2GetDependencies: Started building dependency matrix $(dim) x $(dim) ..."
 
-    fmu.dependencies = fill(nothing, dim, dim)
+    fmu.dependencies = fill(fmi2DependencyKindIndependent, dim, dim)
 
     if fmi2DerivativeDependenciesSupported(fmu.modelDescription)
         for der in fmu.modelDescription.modelStructure.derivatives
@@ -47,18 +47,18 @@ function fmi2GetDependencies(fmu::FMU2)
             
             if der.dependencies === nothing
                 vKnown = fmu.modelDescription.stateValueReferences
-                vKnownIndex = collect(fmu.modelDescription.valueReferenceIndicies[vr] for vr in vKnown)
-                der.dependencies = vKnownIndex
+                der.dependencies = collect(fmu.modelDescription.valueReferenceIndicies[vr] for vr in vKnown)
                 der.dependenciesKind = fill(fmi2DependencyKindDependent, length(vKnownIndex))                 
             end
 
             for depend in zip(der.dependencies, der.dependenciesKind)
                 @assert depend[1] <= dim ["fmi2GetDependencies: Index missmatch between dependency index $(depend[1]) and dimension $(dim)."]
-                if depend[2] == fmi2DependencyKindFixed || depend[2] == fmi2DependencyKindDependent 
-                    fmu.dependencies[index,depend[1]] = depend[2]
-                else 
+                if typeof(depend[2]) != fmi2DependencyKind
                     @warn "Unknown dependency kind for index ($index, $depend[1]) = `$(fmi2DependencyKind(depend[2]))`."
+                    continue
                 end
+
+                fmu.dependencies[index,depend[1]] = depend[2]
             end
         end
     end
@@ -74,11 +74,7 @@ function fmi2PrintDependencies(fmu::FMU2)
     for i in 1:ni
         str = ""
         for j in 1:nj
-            if dep[i,j] !== nothing
-                str = "$(str) $(Integer(dep[i,j]))"
-            else
-                str = "$(str) -"
-            end
+            str = "$(str) $(Integer(dep[i,j]))"
         end 
         println(str)
     end
