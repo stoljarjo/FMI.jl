@@ -4,6 +4,7 @@
 #
 
 using FMI: fmi2VariableNamingConventionStructured, fmi2DependencyKindDependent, fmi2DependencyKindFixed, fmi2GetDependencies
+using FMI: fmi2GetDefaultStartTime, fmi2GetDefaultStopTime, fmi2GetDefaultTolerance, fmi2GetDefaultStepSize
 
 myFMU = fmiLoad("SpringFrictionPendulum1D", ENV["EXPORTINGTOOL"], ENV["EXPORTINGVERSION"])
 
