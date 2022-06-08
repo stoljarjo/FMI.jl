@@ -7,6 +7,7 @@
 # - high-level functions, that are useful, but not part of the FMI-spec [exported]
 
 using Base.Filesystem: mktempdir
+using SparseArrays
 
 using FMIImport: FMU2, fmi2ModelDescription
 using FMIImport: fmi2Boolean, fmi2Real, fmi2Integer, fmi2Byte, fmi2String, fmi2FMUstate
@@ -35,30 +36,37 @@ function fmi2GetDependencies(fmu::FMU2)
         return fmu.dependencies
     end
 
-    dim = length(fmu.modelDescription.modelVariables)
+    dim = length(fmu.modelDescription.valueReferences)
     @info "fmi2GetDependencies: Started building dependency matrix $(dim) x $(dim) ..."
 
-    fmu.dependencies = fill(fmi2DependencyKindIndependent, dim, dim)
+    fmu.dependencies = spzeros(fmi2DependencyKind, dim, dim)
 
     if fmi2DerivativeDependenciesSupported(fmu.modelDescription)
         for der in fmu.modelDescription.modelStructure.derivatives
-            @assert der.index <= dim ["fmi2GetDependencies: Index missmatch between derivative index $(der.index) and dimension $(dim)."]
-            index = der.index
+            derReference = fmu.modelDescription.modelVariables[der.index].valueReference
+            row = fmu.modelDescription.valueReferenceIndicies[derReference]
+
+            @assert row <= dim ["fmi2GetDependencies: Index missmatch between derivative index $(row) and dimension $(dim)."]
             
             if der.dependencies === nothing
-                vKnown = fmu.modelDescription.stateValueReferences
-                der.dependencies = collect(fmu.modelDescription.valueReferenceIndicies[vr] for vr in vKnown)
-                der.dependenciesKind = fill(fmi2DependencyKindDependent, length(vKnownIndex))                 
+                references = fmu.modelDescription.stateValueReferences
+                dependenciesKind = fill(fmi2DependencyKindDependent, length(references))
+            else
+                references = [fmu.modelDescription.modelVariables[vr].valueReference for vr in der.dependencies]
+                dependenciesKind = der.dependenciesKind
             end
+            col = [fmu.modelDescription.valueReferenceIndicies[ref] for ref in references]
 
-            for depend in zip(der.dependencies, der.dependenciesKind)
-                @assert depend[1] <= dim ["fmi2GetDependencies: Index missmatch between dependency index $(depend[1]) and dimension $(dim)."]
-                if typeof(depend[2]) != fmi2DependencyKind
-                    @warn "Unknown dependency kind for index ($index, $depend[1]) = `$(fmi2DependencyKind(depend[2]))`."
+            for i in 1:length(col)
+                @assert col[i] <= dim ["fmi2GetDependencies: The index `$(col[i])` exceeds the size of the dependency matrix."]
+                if typeof(dependenciesKind[i]) != fmi2DependencyKind
+                    @warn "Unknown dependency kind for index ($row, $(dependenciesKind[i])) = `$(fmi2DependencyKind(dependenciesKind[2]))`."
                     continue
                 end
-
-                fmu.dependencies[index,depend[1]] = depend[2]
+                
+                fmu.dependencies[row, col[i]] = dependenciesKind[i]
+                # create an symmetric matrix           
+                fmu.dependencies[col[i], row] = dependenciesKind[i]
             end
         end
     end
