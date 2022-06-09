@@ -75,6 +75,70 @@ function fmi2GetDependencies(fmu::FMU2)
     fmu.dependencies
 end
 
+"""
+Provides the FMU's derivative dependence indices as a dictionary for quick lookup of indices for derivative or state references.
+"""
+function fmi2DerivativeDependencieIndicies(fmu::FMU2)
+    dim = length(fmu.modelDescription.derivativeValueReferences) + length(fmu.modelDescription.stateValueReferences)
+    stateValueIndicies = Dict(fmu.modelDescription.stateValueReferences .=> 1:2:dim)
+    derivativeValueIndicies = Dict(fmu.modelDescription.derivativeValueReferences .=> 2:2:dim)
+    merge(stateValueIndicies, derivativeValueIndicies)
+end
+
+"""
+Returns the FMU's derivative dependency-matrix for fast look-ups on derivative dependencies between value references.
+
+Entries are from type fmi2DependencyKind.
+"""
+function fmi2GetDerivativeDependencies(fmu::FMU2)
+    if isdefined(fmu, :dependencies)
+        return fmu.dependencies
+    end
+    derivativeValueIndicies = fmi2DerivativeDependencieIndicies(fmu)
+
+    dim = length(derivativeValueIndicies)
+    @info "fmi2GetDependencies: Started building dependency matrix $(dim) x $(dim) ..."
+
+    fmu.dependencies = spzeros(fmi2DependencyKind, dim, dim)
+
+    I = Vector{Int64}()
+    J = Vector{Int64}()
+    V = Vector{UInt32}()
+
+    if fmi2DerivativeDependenciesSupported(fmu.modelDescription)
+        for der in fmu.modelDescription.modelStructure.derivatives
+            derReference = fmu.modelDescription.modelVariables[der.index].valueReference
+            row = derivativeValueIndicies[derReference]
+        
+            if der.dependencies === nothing
+                references = fmu.modelDescription.stateValueReferences
+                dependenciesKind = fill(fmi2DependencyKindDependent, length(references))
+            else
+                references = collect(fmu.modelDescription.modelVariables[vr].valueReference for vr in der.dependencies)
+                dependenciesKind = der.dependenciesKind
+            end
+            columns = collect(derivativeValueIndicies[ref] for ref in references)
+            rows = repeat([row], length(columns))
+
+            append!(I, rows)
+            append!(J, columns)
+            append!(V, dependenciesKind)
+        end
+        # create an symmetric matrix
+        len = length(I)
+        append!(I, J)
+        append!(J, I[1:len])
+        append!(V, V)
+
+        fmu.dependencies = sparse(I, J, V, dim, dim)
+    end    
+    @info "fmi2GetDependencies: Building dependency matrix $(dim) x $(dim) finished."
+    fmu.dependencies
+end
+
+"""
+Prints the dependency-matrix.
+"""
 function fmi2PrintDependencies(fmu::FMU2)
     dep = fmi2GetDependencies(fmu)
     ni, nj = size(dep)
