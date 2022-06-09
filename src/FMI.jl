@@ -95,7 +95,7 @@ export fmiGetVariableNamingConvention, fmiGetNumberOfEventIndicators
 export fmiCanGetSetState, fmiCanSerializeFMUstate
 export fmiProvidesDirectionalDerivative
 export fmiIsCoSimulation, fmiIsModelExchange
-export fmiGetDependencies
+export fmiGetDependencies, fmiGetDerivativeDependencies
 export fmiGetStartValue
 export fmiSimulate, fmiSimulateCS, fmiSimulateME
 export fmiGet, fmiGet!, fmiSet
@@ -123,6 +123,21 @@ See also [`fmi2GetDependencies`](@ref), [`FMU2`](@ref).
 """
 function fmiGetDependencies(fmu::FMU2)
     fmi2GetDependencies(fmu)
+end
+
+"""
+
+    fmiGetDerivativeDependencies(fmu::FMU2)
+
+Building dependency matrix `dim x dim` for fast look-ups on derivative dependencies (`dim` is number of states).    
+
+#Arguments
+- `fmu::FMU2`: Mutable Struct representing a FMU in [FMI Standard Version 2.0.2](https://fmi-standard.org/).
+
+See also [`fmi2GetDerivativeDependencies`](@ref), [`FMU2`](@ref).  
+"""
+function fmiGetDerivativeDependencies(fmu::FMU2)
+    fmi2GetDerivativeDependencies(fmu)
 end
 
 """   
