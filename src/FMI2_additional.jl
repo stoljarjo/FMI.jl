@@ -78,7 +78,7 @@ end
 """
 Provides the FMU's derivative dependence indices as a dictionary for quick lookup of indices for derivative or state references.
 """
-function fmi2DerivativeDependencieIndicies(fmu::FMU2)
+function fmi2GetDependencieIndiciesA(fmu::FMU2)
     dim = length(fmu.modelDescription.derivativeValueReferences) + length(fmu.modelDescription.stateValueReferences)
     stateValueIndicies = Dict(fmu.modelDescription.stateValueReferences .=> 1:2:dim)
     derivativeValueIndicies = Dict(fmu.modelDescription.derivativeValueReferences .=> 2:2:dim)
@@ -90,16 +90,14 @@ Returns the FMU's derivative dependency-matrix for fast look-ups on derivative d
 
 Entries are from type fmi2DependencyKind.
 """
-function fmi2GetDerivativeDependencies(fmu::FMU2)
+function fmi2GetDependenciesA(fmu::FMU2)
     if isdefined(fmu, :dependencies)
         return fmu.dependencies
     end
-    derivativeValueIndicies = fmi2DerivativeDependencieIndicies(fmu)
+    valueIndicies = fmi2GetDependencieIndiciesA(fmu)
 
-    dim = length(derivativeValueIndicies)
+    dim = length(valueIndicies)
     @info "fmi2GetDependencies: Started building dependency matrix $(dim) x $(dim) ..."
-
-    fmu.dependencies = spzeros(fmi2DependencyKind, dim, dim)
 
     I = Vector{Int64}()
     J = Vector{Int64}()
@@ -108,7 +106,7 @@ function fmi2GetDerivativeDependencies(fmu::FMU2)
     if fmi2DerivativeDependenciesSupported(fmu.modelDescription)
         for der in fmu.modelDescription.modelStructure.derivatives
             derReference = fmu.modelDescription.modelVariables[der.index].valueReference
-            row = derivativeValueIndicies[derReference]
+            row = valueIndicies[derReference]
         
             if der.dependencies === nothing
                 references = fmu.modelDescription.stateValueReferences
@@ -117,7 +115,7 @@ function fmi2GetDerivativeDependencies(fmu::FMU2)
                 references = collect(fmu.modelDescription.modelVariables[vr].valueReference for vr in der.dependencies)
                 dependenciesKind = der.dependenciesKind
             end
-            columns = collect(derivativeValueIndicies[ref] for ref in references)
+            columns = collect(valueIndicies[ref] for ref in references)
             rows = repeat([row], length(columns))
 
             append!(I, rows)
