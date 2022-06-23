@@ -79,17 +79,19 @@ end
 Provides the FMU's derivative dependence indices as a dictionary for quick lookup of indices for derivative or state references.
 """
 function fmi2GetDependencieIndiciesA(fmu::FMU2)
-    if isdefined(fmu, :stateValueIndicies) && isdefined(fmu, :derivativeValueIndicies)
-        return (fmu.stateValueIndicies, fmu.derivativeValueIndicies)
+    if isdefined(fmu.modelDescription, :stateReferenceIndicies) && 
+        isdefined(fmu.modelDescription, :derivativeReferenceIndicies)
+        return (fmu.modelDescription.stateReferenceIndicies, 
+                fmu.modelDescription.derivativeReferenceIndicies)
     end
     dimDerivative = length(fmu.modelDescription.derivativeValueReferences)
     dimState = length(fmu.modelDescription.stateValueReferences)
 
     @assert dimDerivative == dimState ["fmi2GetDependencieIndiciesA: Dimension missmatch between."]
 
-    fmu.stateValueIndicies = Dict(fmu.modelDescription.stateValueReferences .=> 1:dimState)
-    fmu.derivativeValueIndicies = Dict(fmu.modelDescription.derivativeValueReferences .=> 1:dimDerivative)
-    (fmu.stateValueIndicies, fmu.derivativeValueIndicies)
+    fmu.modelDescription.stateReferenceIndicies = Dict(fmu.modelDescription.stateValueReferences .=> 1:dimState)
+    fmu.modelDescription.derivativeReferenceIndicies = Dict(fmu.modelDescription.derivativeValueReferences .=> 1:dimDerivative)
+    (fmu.modelDescription.stateReferenceIndicies, fmu.modelDescription.derivativeReferenceIndicies)
 end
 
 """
@@ -103,7 +105,7 @@ function fmi2GetDependenciesA(fmu::FMU2)
     end
     fmi2GetDependencieIndiciesA(fmu)
 
-    dim = length(fmu.stateValueIndicies)
+    dim = length(fmu.modelDescription.stateReferenceIndicies)
     @info "fmi2GetDependencies: Started building dependency matrix $(dim) x $(dim) ..."
 
     I = Vector{Int64}()
@@ -113,7 +115,7 @@ function fmi2GetDependenciesA(fmu::FMU2)
     if fmi2DerivativeDependenciesSupported(fmu.modelDescription)
         for der in fmu.modelDescription.modelStructure.derivatives
             derReference = fmu.modelDescription.modelVariables[der.index].valueReference
-            row = fmu.derivativeValueIndicies[derReference]
+            row = fmu.modelDescription.derivativeReferenceIndicies[derReference]
         
             if der.dependencies === nothing
                 references = fmu.modelDescription.stateValueReferences
@@ -122,7 +124,7 @@ function fmi2GetDependenciesA(fmu::FMU2)
                 references = collect(fmu.modelDescription.modelVariables[vr].valueReference for vr in der.dependencies)
                 dependenciesKind = der.dependenciesKind
             end
-            columns = collect(fmu.stateValueIndicies[ref] for ref in references)
+            columns = collect(fmu.modelDescription.stateReferenceIndicies[ref] for ref in references)
             rows = repeat([row], length(columns))
 
             append!(I, rows)
