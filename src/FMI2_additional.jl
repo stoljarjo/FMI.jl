@@ -13,7 +13,7 @@ using FMIImport: FMU2, fmi2ModelDescription
 using FMIImport: fmi2Boolean, fmi2Real, fmi2Integer, fmi2Byte, fmi2String, fmi2FMUstate
 using FMIImport: fmi2True, fmi2False
 using FMIImport: fmi2StatusKind, fmi2Status
-using FMIImport: fmi2DependencyKind, fmi2DependencyKindIndependent
+using FMIImport: fmi2DependencyKind, fmi2DependencyKindDependent
 using FMIImport: fmi2CallbackFunctions, fmi2Component
 import FMIImport: fmi2VariableNamingConventionFlat, fmi2VariableNamingConventionStructured
 
