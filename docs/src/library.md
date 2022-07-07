@@ -1,20 +1,20 @@
-# Version independent FMU functions
+# Library Functions
 
 ## Parsing variable names to ValueReferences
 
 ```@docs
-fmiString2ValueReference
+fmiStringToValueReference
 ```
 
 ## Opening and closing FMUs
 
 ```@docs
-fmiUnzip
 fmiLoad
 fmiUnload
 ```
 
 ## Reading the model description
+
 ```@docs
 fmiGetModelName
 fmiGetGUID
@@ -28,6 +28,14 @@ fmiProvidesDirectionalDerivative
 fmiIsCoSimulation
 fmiIsModelExchange
 fmiInfo
+```
+
+## Get/Set variable values
+
+```@docs
+fmiGet
+fmiGet!
+fmiSet
 ```
 
 ## Simulate FMU

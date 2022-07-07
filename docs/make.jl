@@ -4,37 +4,42 @@
 #
 
 using Documenter, FMI
+using Documenter: GitHubActions
 
 makedocs(sitename="FMI.jl",
          format = Documenter.HTML(
             collapselevel = 1,
-            sidebar_sitename = false
+            sidebar_sitename = false,
+            edit_link = nothing
          ),
          pages= Any[
             "Introduction" => "index.md"
             "Features" => "features.md"
-            "Tutorials" => [
-                "tutorials/overview.md"
-                "Load/Unload a FMU" => "tutorials/load_unload.md"
-                "Simulate a FMU" => "tutorials/simulate.md"
-            ]
+            "FAQ" => "faq.md"
             "Examples" => [
-                "examples/examples.md"
-                "examples/CS_simulation.md"
-                "examples/simulateME.md"
-                "examples/parameterize.md"
-                "examples/multipleInstance.md"
+                "Overview" => "examples/overview.md"
+                "Simulate" => "examples/simulate.md"
+                "Parameterize" => "examples/parameterize.md"
+                "Multiple instances" => "examples/multiple_instances.md"
+                "Modelica conference 2021" => "examples/modelica_conference_2021.md"
+                "Manipulation" => "examples/manipulation.md"
+                "Multithreading" => "examples/multithreading.md"
+                "Multiprocessing" => "examples/multiprocessing.md"
             ]
-            "Library Functions" => Any[
-                "FMI 2 library functions" => "library/library.md",
-                "FMI version independent functions" => "library/library_ind.md",
-                "FMU 2 functions" => "library/fmu2.md",
-                "FMU version independent functions" => "library/fmu.md"
-            ]
-            "related.md"
+            "Library Functions" => "library.md"
+            "Related Publication" => "related.md"
             "Contents" => "contents.md"
-            "Library Index" => "indices.md"
             ]
          )
 
-deploydocs(repo = "github.com/ThummeTo/FMI.jl.git", devbranch = "main")
+function deployConfig()
+    github_repository = get(ENV, "GITHUB_REPOSITORY", "")
+    github_event_name = get(ENV, "GITHUB_EVENT_NAME", "")
+    if github_event_name == "workflow_run"
+        github_event_name = "push"
+    end
+    github_ref = get(ENV, "GITHUB_REF", "")
+    return GitHubActions(github_repository, github_event_name, github_ref)
+end
+
+deploydocs(repo = "github.com/ThummeTo/FMI.jl.git", devbranch = "main", deploy_config = deployConfig())
