@@ -40,35 +40,34 @@ function fmi2GetDependencies(fmu::FMU2)
     dim = length(fmu.modelDescription.valueReferences)
     @info "fmi2GetDependencies: Started building dependency matrix $(dim) x $(dim) ..."
 
-            for i in 1:dim
-                modelVariable = fmi2ModelVariablesForValueReference(fmu.modelDescription, fmu.modelDescription.valueReferences[i])[1]
-
-                if modelVariable.dependencies !== nothing
-                    indicies = collect(fmu.modelDescription.valueReferenceIndicies[fmu.modelDescription.modelVariables[dependency].valueReference] for dependency in modelVariable.dependencies)
-                    dependenciesKind = modelVariable.dependenciesKind
-
-                    k = 1
-                    for j in 1:dim
-                        if j in indicies
-                            if dependenciesKind[k] == "fixed"
-                                fmu.dependencies[i,j] = fmi2DependencyKindFixed
-                            elseif dependenciesKind[k] == "dependent"
-                                fmu.dependencies[i,j] = fmi2DependencyKindDependent
-                            else
-                                @warn "Unknown dependency kind for index ($i, $j) = `$(dependenciesKind[k])`."
-                            end
-                            k += 1
-                        end
-                    end
-                end
-            end
-        else
-            fmu.dependencies = fill(nothing, dim, dim)
-        end
-
-        @info "fmi2GetDependencies: Building dependency matrix $(dim) x $(dim) finished."
+    if !fmi2DependenciesSupported(fmu.modelDescription)
+        return fmu.dependencies = fill(nothing, dim, dim)
     end
 
+    for i in 1:dim
+        modelVariable = fmi2ModelVariablesForValueReference(fmu.modelDescription, fmu.modelDescription.valueReferences[i])[1]
+
+        if modelVariable.dependencies !== nothing
+            indicies = collect(fmu.modelDescription.valueReferenceIndicies[fmu.modelDescription.modelVariables[dependency].valueReference] for dependency in modelVariable.dependencies)
+            dependenciesKind = modelVariable.dependenciesKind
+
+            k = 1
+            for j in 1:dim
+                if j in indicies
+                    if dependenciesKind[k] == "fixed"
+                        fmu.dependencies[i,j] = fmi2DependencyKindFixed
+                    elseif dependenciesKind[k] == "dependent"
+                        fmu.dependencies[i,j] = fmi2DependencyKindDependent
+                    else
+                        @warn "Unknown dependency kind for index ($i, $j) = `$(dependenciesKind[k])`."
+                    end
+                    k += 1
+                end
+            end
+        end
+    end
+    
+    @info "fmi2GetDependencies: Building dependency matrix $(dim) x $(dim) finished."
     fmu.dependencies
 end
 
