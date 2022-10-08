@@ -1,6 +1,7 @@
 name: Run Tests
 
 on:
+  workflow_dispatch:
   pull_request:
   push:
     branches: 
@@ -9,6 +10,7 @@ on:
       - 'src/**'
       - 'test/**'
       - '.github/**'
+      - 'Project.toml'
 
 jobs:
   test:
