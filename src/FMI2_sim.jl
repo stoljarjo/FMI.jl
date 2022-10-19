@@ -10,6 +10,7 @@ using FMIImport: fmi2SetupExperiment, fmi2EnterInitializationMode, fmi2ExitIniti
 using FMIImport.FMICore: fmi2StatusOK, fmi2TypeCoSimulation, fmi2TypeModelExchange
 using FMIImport.FMICore: fmi2ComponentState, fmi2ComponentStateInstantiated, fmi2ComponentStateInitializationMode, fmi2ComponentStateEventMode, fmi2ComponentStateContinuousTimeMode, fmi2ComponentStateTerminated, fmi2ComponentStateError, fmi2ComponentStateFatal
 using FMIImport: FMU2Solution, FMU2Event
+using FMIImport: eventOccurred!
 
 using ChainRulesCore
 import ForwardDiff
@@ -141,6 +142,9 @@ function affectFMU!(c::FMU2Component, integrator, idx, inputFunction, inputValue
         if idx != -1 # -1 no event, 0, time event, >=1 state event with indicator
             e = FMU2Event(integrator.t, UInt64(idx), left_x, right_x)
             push!(solution.events, e)
+            eventOccurred!(c.A, c.fmu.dependencies, :discrete)
+        else
+            eventOccurred!(c.A, c.fmu.dependencies, :discrete)
         end
     end 
 
