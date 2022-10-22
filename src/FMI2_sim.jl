@@ -138,7 +138,9 @@ function affectFMU!(c::FMU2Component, integrator, idx, inputFunction, inputValue
         x_nom = fmi2GetNominalsOfContinuousStates(c)
     end
 
-    ignore_derivatives() do 
+    ignore_derivatives() do
+        println(typeof(c.A)) 
+        println(typeof(c.fmu.dependencies)) 
         if idx != -1 # -1 no event, 0, time event, >=1 state event with indicator
             e = FMU2Event(integrator.t, UInt64(idx), left_x, right_x)
             push!(solution.events, e)
