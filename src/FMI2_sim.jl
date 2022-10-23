@@ -144,11 +144,11 @@ function affectFMU!(c::FMU2Component, integrator, idx, inputFunction, inputValue
             e = FMU2Event(integrator.t, UInt64(idx), left_x, right_x)
             push!(solution.events, e)
             # TODO check event
-            if isdefined(comp.fmu, :dependencies) 
+            if isdefined(c.fmu, :dependencies) 
                 eventOccurred!(c.jac_ẋy_x, c.fmu.dependencies; eventType=:discrete)
             end
         else
-            if isdefined(comp.fmu, :dependencies)
+            if isdefined(c.fmu, :dependencies)
                 eventOccurred!(c.jac_ẋy_x, c.fmu.dependencies; eventType=:dependent)
             end
         end
