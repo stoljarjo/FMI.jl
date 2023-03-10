@@ -208,7 +208,7 @@ originalGetReal = myFMU.cGetReal
 
 
 
-    Ptr{Nothing} @0x00007f4241b69faf
+    Ptr{Nothing} @0x00007fc63d369faf
 
 
 
@@ -256,7 +256,7 @@ fmiSetFctGetReal(myFMU, myGetReal!)
 
 
 
-    Ptr{Nothing} @0x00007f42b749dfc0
+    Ptr{Nothing} @0x00007fc6c7eb8fc0
 
 
 

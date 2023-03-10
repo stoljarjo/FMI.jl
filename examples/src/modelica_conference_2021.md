@@ -156,7 +156,7 @@ instanceFMU = fmiInstantiate!(myFMU)
 
     FMU:            SpringFrictionPendulum1D
     InstanceName:   SpringFrictionPendulum1D
-    Address:        Ptr{Nothing} @0x000000000f5c34a0
+    Address:        Ptr{Nothing} @0x00000000132a1000
     State:          0
     Logging:        false
     FMU time:       -Inf
@@ -209,7 +209,7 @@ fmiUnload(myFMU)
 
     [[32mOK[0m][CvodeStatistics][SpringFrictionPendulum1D]: Sundials CVode Statistics
         Stop time                                : 8.00 s
-        Simulation time                          : 0.36 s
+        Simulation time                          : 0.27 s
         Number of external steps                 : 80
         Number of internal steps                 : 191
         Number of non-linear iterations          : 263
