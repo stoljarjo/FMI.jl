@@ -52,6 +52,6 @@ jobs:
         run: |
           git clone https://github.com/JuliaCI/PkgEval.jl.git
           cd PkgEval.jl
-          julia --project -e 'import Pkg; Pkg.instantiate(); Pkg.add("PkgEval")'
-          julia --project -e 'include("../test/FMI2/eval.jl")'
+          julia -e 'import Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate()'
+          julia -e 'include("../test/FMI2/eval.jl")'
       
