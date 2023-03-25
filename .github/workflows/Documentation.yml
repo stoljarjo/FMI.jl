@@ -7,7 +7,7 @@ on:
   repository_dispatch:
     types: [trigger-docu]
 
-  pull_request:
+  # pull_request:
   push:
     branches: 
       - main
