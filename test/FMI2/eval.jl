@@ -1,5 +1,5 @@
 using PkgEval
-using FMI
+# using FMI
 
 config = Configuration(; julia="1.8");
 
@@ -12,4 +12,4 @@ result = evaluate([config], [package])
 println(result)
 
 @info "Log"
-println(result.log])
+println(result.log)
