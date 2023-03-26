@@ -6,4 +6,10 @@ config = Configuration(; julia="1.8");
 package = Package(; name="FMI");
 
 @info "PkgEval"
-println(evaluate([config], [package]))
+result = evaluate([config], [package])
+
+@info "Result"
+println(result)
+
+@info "Log"
+println(result["log"])
