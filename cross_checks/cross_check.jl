@@ -250,6 +250,7 @@ function main()
     end
     println("#################### End FMI Cross check Summary ####################")
 
+    println(cross_check_repo_token, cross_check_repo_url, cross_check_repo_user)    
     if cross_check_repo_token != "" && cross_check_repo_url != "" && cross_check_repo_user != ""
         println("#################### Git Push ####################")
         run(Cmd(`$(git()) add -A`, dir=fmiCrossCheckRepoPath))
