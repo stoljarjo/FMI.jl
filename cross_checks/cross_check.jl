@@ -208,7 +208,7 @@ function main()
     cross_check_repo_url = get(ENV, "CROSS_CHECK_REPO_URL", "")
     cross_check_repo_user = get(ENV, "CROSS_CHECK_REPO_USER", "")
     if cross_check_repo_token != "" && cross_check_repo_url != "" && cross_check_repo_user != ""
-        run(Cmd(`$(git()) remote set-url origin https://$(cross_check_repo_user):$(cross_check_repo_token)@$(cross_check_repo_url)`, dir=fmiCrossCheckRepoPath))
+        run(Cmd(`$(git()) remote set-url origin https://$(cross_check_repo_url).git`, dir=fmiCrossCheckRepoPath))
         run(Cmd(`$(git()) checkout $(crossCheckBranch)`, dir=fmiCrossCheckRepoPath))
     end
 
