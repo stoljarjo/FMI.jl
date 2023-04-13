@@ -251,6 +251,7 @@ function main()
     println("#################### End FMI Cross check Summary ####################")
 
     if cross_check_repo_token != "" && cross_check_repo_url != "" && cross_check_repo_user != ""
+        println("#################### Git Push ####################")
         run(Cmd(`$(git()) add -A`, dir=fmiCrossCheckRepoPath))
         run(Cmd(`$(git()) commit -a --allow-empty -m "Run FMI cross checks for FMI.JL"`, dir=fmiCrossCheckRepoPath))
         run(Cmd(`$(git()) push`, dir=fmiCrossCheckRepoPath))
