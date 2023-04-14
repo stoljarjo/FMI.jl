@@ -204,10 +204,13 @@ function main()
     fmiCrossCheckRepoPath = getFmuCrossCheckRepo(crossCheckRepo, unpackPath)
 
     # set up the github access for the fmi-cross-checks repo and checkout the respective branch
-    cross_check_repo_token = get(ENV, "CROSS_CHECK_REPO_TOKEN", "")
+    
+    # cross_check_repo_token = get(ENV, "CROSS_CHECK_REPO_TOKEN", "")
     cross_check_repo_url = get(ENV, "CROSS_CHECK_REPO_URL", "")
     cross_check_repo_user = get(ENV, "CROSS_CHECK_REPO_USER", "")
-    if cross_check_repo_token != "" && cross_check_repo_url != "" && cross_check_repo_user != ""
+    # if cross_check_repo_token != "" && cross_check_repo_url != "" && cross_check_repo_user != ""
+    if cross_check_repo_url != "" && cross_check_repo_user != ""
+        println("########## GIT set remote url #################")
         run(Cmd(`$(git()) remote set-url origin https://$(cross_check_repo_url)`, dir=fmiCrossCheckRepoPath))
         run(Cmd(`$(git()) checkout $(crossCheckBranch)`, dir=fmiCrossCheckRepoPath))
     end
@@ -250,8 +253,11 @@ function main()
     end
     println("#################### End FMI Cross check Summary ####################")
 
-    println(cross_check_repo_token, cross_check_repo_url, cross_check_repo_user)    
-    if cross_check_repo_token != "" && cross_check_repo_url != "" && cross_check_repo_user != ""
+    # println("cross_check_repo_token: " + cross_check_repo_token)
+    println("cross_check_repo_url: " + cross_check_repo_url)    
+    println("cross_check_repo_user: " + cross_check_repo_user)    
+    # if cross_check_repo_token != "" && cross_check_repo_url != "" && cross_check_repo_user != ""
+    if cross_check_repo_url != "" && cross_check_repo_user != ""
         println("#################### Git Push ####################")
         run(Cmd(`$(git()) add -A`, dir=fmiCrossCheckRepoPath))
         run(Cmd(`$(git()) commit -a --allow-empty -m "Run FMI cross checks for FMI.JL"`, dir=fmiCrossCheckRepoPath))
