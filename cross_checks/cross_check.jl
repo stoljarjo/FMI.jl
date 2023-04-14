@@ -212,7 +212,7 @@ function main()
     if cross_check_repo_url != "" && cross_check_repo_user != ""
         println("########## GIT set remote url #################")
         run(Cmd(`$(git()) remote set-url origin https://$(cross_check_repo_url)`, dir=fmiCrossCheckRepoPath))
-        run(Cmd(`$(git()) checkout $(crossCheckBranch)`, dir=fmiCrossCheckRepoPath))
+        run(Cmd(`$(git()) -b checkout $(crossCheckBranch)`, dir=fmiCrossCheckRepoPath))
     end
 
     #   Excecute FMUs
