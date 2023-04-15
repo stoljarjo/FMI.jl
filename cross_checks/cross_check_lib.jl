@@ -116,7 +116,7 @@ function calucateNRMSE(recordedVariables::Vector{String}, simData::FMU2Solution,
     return mean(errors)
 end
 
-function create_ssh_private_key(dir::AbstractString; ssh_pkey::AbstractString)::String
+function create_ssh_private_key(dir::AbstractString, ssh_pkey::AbstractString)::String
     run(`chmod 700 $dir`)
     pkey_filename = joinpath(dir, "privatekey")
 

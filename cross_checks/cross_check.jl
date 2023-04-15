@@ -208,19 +208,14 @@ function main()
     tmp_dir = mktempdir(; cleanup=true)
     pkey_filename = create_ssh_private_key(tmp_dir, github_token)
     
-    cross_check_repo_url = get(ENV, "CROSS_CHECK_REPO_URL", "")
+    cross_check_repo_name = get(ENV, "CROSS_CHECK_REPO_NAME", "")
     cross_check_repo_user = get(ENV, "CROSS_CHECK_REPO_USER", "")
-    # if cross_check_repo_token != "" && cross_check_repo_url != "" && cross_check_repo_user != ""
-    if cross_check_repo_url != "" && cross_check_repo_user != ""
-        println("########## GIT set remote url #################")
-        # run(Cmd(`$(git()) remote set-url origin https://$(cross_check_repo_url)`, dir=fmiCrossCheckRepoPath))
-        # run(Cmd(`$(git()) remote set-url origin https://$(cross_check_repo_user):$(github_token)@$(cross_check_repo_url)`, dir=fmiCrossCheckRepoPath))
-        
+    if github_token != "" && cross_check_repo_name != "" && cross_check_repo_user != ""
         withenv(
             "GIT_SSH_COMMAND" => isnothing(github_token) ? "ssh" : "ssh -i $pkey_filename"
         ) do
             run(
-                Cmd(`$(git()) remote set-url origin git@github.com:stoljarjo/fmi-cross-check.git`, dir=fmiCrossCheckRepoPath)
+                Cmd(`$(git()) remote set-url origin git@github.com:$cross_check_repo_user/$cross_check_repo_name`, dir=fmiCrossCheckRepoPath)
             )
         end
 
@@ -271,16 +266,8 @@ function main()
         println("\u001B[31m\t\t$(index):\t$(error)\u001B[0m")
     end
     println("#################### End FMI Cross check Summary ####################")
-
-    # println("cross_check_repo_token: " + cross_check_repo_token)
-    println("cross_check_repo_url: ", cross_check_repo_url)    
-    println("cross_check_repo_user: ", cross_check_repo_user)    
-    # if cross_check_repo_token != "" && cross_check_repo_url != "" && cross_check_repo_user != ""
-    if cross_check_repo_url != "" && cross_check_repo_user != ""
-        println("#################### Git Push ####################")
-        run(Cmd(`$(git()) config --global user.name "$(cross_check_repo_user)"`, dir=fmiCrossCheckRepoPath))
-        run(Cmd(`$(git()) config --global user.email "$(cross_check_repo_user)@users.noreply.github.com"`, dir=fmiCrossCheckRepoPath))
-        run(Cmd(`$(git()) config --global core.autocrlf false`, dir=fmiCrossCheckRepoPath))
+ 
+    if github_token != "" && cross_check_repo_name != "" && cross_check_repo_user != ""
         run(Cmd(`$(git()) add -A`, dir=fmiCrossCheckRepoPath))
         run(Cmd(`$(git()) commit -a --allow-empty -m "Run FMI cross checks for FMI.JL"`, dir=fmiCrossCheckRepoPath))
         

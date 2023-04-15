@@ -52,18 +52,20 @@ jobs:
       - name: "Install dependencies"
         run: julia --project=cross_checks/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate()'
 
-      # - name: "Setup Git"
-      #   env: 
-      #     CI_COMMIT_AUTHOR: github-actions[bot] 
-      #   run: |
-      #     git config --global user.name "${{ env.CI_COMMIT_AUTHOR }}"
-      #     git config --global user.email "${{ env.CI_COMMIT_AUTHOR }}@users.noreply.github.com"
-      #     git config --global core.autocrlf false 
+      - name: "Setup Git"
+        env: 
+          CI_COMMIT_AUTHOR: github-actions[bot] 
+        run: |
+          git config --global user.name "${{ env.CI_COMMIT_AUTHOR }}"
+          git config --global user.email "${{ env.CI_COMMIT_AUTHOR }}@users.noreply.github.com"
+          git config --global core.autocrlf false 
 
       # Run the cross checks and push the results to the cross check repo 
       - name: "Run FMU Cross checks"
         env:
           GITHUB_TOKEN: ${{ secrets.CROSS_CHECK_PRIV }}
-          CROSS_CHECK_REPO_URL: 'github.com/stoljarjo/fmi-cross-check.git'
-          CROSS_CHECK_REPO_USER: 'stoljarjo'
-        run: julia --project=cross_checks/ ./cross_checks/cross_check.jl --os ${{ matrix.os }} --ccrepo https://${{ env.CROSS_CHECK_REPO_URL }} --ccbranch fmi.jl_check_${{ matrix.julia-version }}_${{ matrix.os }}
+          CROSS_CHECK_REPO_USER: github.repository_owner
+          CROSS_CHECK_REPO_NAME: 'fmi-cross-check.git'
+          CROSS_CHECK_REPO_URL: https://github.com/${{ env.CROSS_CHECK_REPO_USER }}/${{ env.CROSS_CHECK_REPO_NAME }}
+          CROSS_CHECK_BRANCH: fmi.jl_check_${{ matrix.julia-version }}_${{ matrix.os }}
+        run: julia --project=cross_checks/ ./cross_checks/cross_check.jl --os ${{ matrix.os }} --ccrepo ${{ env.CROSS_CHECK_REPO_URL }} --ccbranch ${{ env.CROSS_CHECK_BRANCH }}
