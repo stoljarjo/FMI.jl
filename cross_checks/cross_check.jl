@@ -213,8 +213,9 @@ function main()
     if cross_check_repo_url != "" && cross_check_repo_user != ""
         println("########## GIT set remote url #################")
         # run(Cmd(`$(git()) remote set-url origin https://$(cross_check_repo_url)`, dir=fmiCrossCheckRepoPath))
-        run(Cmd(`$(git()) remote set-url origin https://$(github_token)@$(cross_check_repo_url)`, dir=fmiCrossCheckRepoPath))
-
+        run(Cmd(`$(git()) remote set-url origin https://$(cross_check_repo_user):$(github_token)@$(cross_check_repo_url)`, dir=fmiCrossCheckRepoPath))
+        println("############ Github TOKEN ###############: ", github_token)
+       
         try
             run(Cmd(`$(git()) checkout $(crossCheckBranch)`, dir=fmiCrossCheckRepoPath))
         catch
