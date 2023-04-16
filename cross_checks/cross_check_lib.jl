@@ -127,7 +127,7 @@ function create_ssh_private_key(dir::AbstractString, ssh_pkey::AbstractString, o
     pkey_filename = joinpath(dir, "privatekey")
 
     decoded_ssh_pkey = decode_ssh_private_key(ssh_pkey)
-    open(pkey_filename, "w") do io
+    open(pkey_filename, "w+") do io
         println(io, decoded_ssh_pkey)
     end
     # if is_linux
