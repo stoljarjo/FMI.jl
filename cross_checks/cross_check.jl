@@ -209,6 +209,10 @@ function main()
     println("TMP-DIR: $tmp_dir")
     pkey_filename = create_ssh_private_key(tmp_dir, github_token, os)
     println("pkey_filename: $pkey_filename")
+    if os == "win64"
+        pkey_filename = replace(pkey_filename, "\\" => "/")
+    end
+    println("pkey_filename: $pkey_filename")
     
     cross_check_repo_name = get(ENV, "CROSS_CHECK_REPO_NAME", "")
     cross_check_repo_user = get(ENV, "CROSS_CHECK_REPO_USER", "")
