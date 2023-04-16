@@ -218,7 +218,7 @@ function main()
     cross_check_repo_user = get(ENV, "CROSS_CHECK_REPO_USER", "")
     if github_token != "" && cross_check_repo_name != "" && cross_check_repo_user != ""
         println("SET shh comando")
-        run(Cmd(`$(git()) config core.sshCommand 'ssh -o StrictHostKeyChecking=no -i $pkey_filename' `, dir=fmiCrossCheckRepoPath))
+        run(Cmd(`$(git()) config core.sshCommand 'ssh -i $pkey_filename' `, dir=fmiCrossCheckRepoPath))
         println("SET remote url")
         run(Cmd(`$(git()) remote set-url origin git@github.com:$cross_check_repo_user/$cross_check_repo_name`, dir=fmiCrossCheckRepoPath))
         try
