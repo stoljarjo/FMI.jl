@@ -217,7 +217,9 @@ function main()
     cross_check_repo_name = get(ENV, "CROSS_CHECK_REPO_NAME", "")
     cross_check_repo_user = get(ENV, "CROSS_CHECK_REPO_USER", "")
     if github_token != "" && cross_check_repo_name != "" && cross_check_repo_user != ""
+        println("SET shh comando")
         run(Cmd(`$(git()) config core.sshCommand 'ssh -o StrictHostKeyChecking=no -i $pkey_filename' `, dir=fmiCrossCheckRepoPath))
+        println("SET remote url")
         run(Cmd(`$(git()) remote set-url origin git@github.com:$cross_check_repo_user/$cross_check_repo_name`, dir=fmiCrossCheckRepoPath))
         try
             run(Cmd(`$(git()) checkout $(crossCheckBranch)`, dir=fmiCrossCheckRepoPath))
@@ -270,7 +272,8 @@ function main()
     if github_token != "" && cross_check_repo_name != "" && cross_check_repo_user != ""
         run(Cmd(`$(git()) add -A`, dir=fmiCrossCheckRepoPath))
         run(Cmd(`$(git()) commit -a --allow-empty -m "Run FMI cross checks for FMI.JL"`, dir=fmiCrossCheckRepoPath))
-        run(Cmd(`$(git()) config core.sshCommand 'ssh -i $pkey_filename' `, dir=fmiCrossCheckRepoPath))
+        # println()
+        # run(Cmd(`$(git()) config core.sshCommand 'ssh -i $pkey_filename' `, dir=fmiCrossCheckRepoPath))
         
         try
             run(Cmd(`$(git()) push`, dir=fmiCrossCheckRepoPath))

@@ -117,12 +117,12 @@ function calucateNRMSE(recordedVariables::Vector{String}, simData::FMU2Solution,
 end
 
 function create_ssh_private_key(dir::AbstractString, ssh_pkey::AbstractString, os::AbstractString)::String
-    # is_linux = occursin("linux", os)
-    # if is_linux
-    #     run(`chmod 700 $dir`)
-    # else
-    #     chmod(dir, 700)
-    # end
+    is_linux = occursin("linux", os)
+    if is_linux
+        run(`chmod 700 $dir`)
+    else
+        chmod(dir, 0o700)
+    end
     # chmod(dir, 0o700)
     pkey_filename = joinpath(dir, "privatekey")
 
@@ -130,11 +130,11 @@ function create_ssh_private_key(dir::AbstractString, ssh_pkey::AbstractString, o
     open(pkey_filename, "w+") do io
         println(io, decoded_ssh_pkey)
     end
-    # if is_linux
-    #     run(`chmod 600 $pkey_filename`)
-    # else
-    #     chmod(pkey_filename, 0o600)
-    # end
+    if is_linux
+        run(`chmod 600 $pkey_filename`)
+    else
+        chmod(pkey_filename, 0o600)
+    end
     # chmod(pkey_filename, 0o600)
     return pkey_filename
 end
