@@ -116,15 +116,20 @@ function calucateNRMSE(recordedVariables::Vector{String}, simData::FMU2Solution,
     return mean(errors)
 end
 
-function create_ssh_private_key(dir::AbstractString, ssh_pkey::AbstractString)::String
-    run(`chmod 700 $dir`)
+function create_ssh_private_key(dir::AbstractString, ssh_pkey::AbstractString, os::AbstractString)::String
+    is_linux = occursin("linux", os)
+    if is_linux
+        run(`chmod 700 $dir`)
+    end
     pkey_filename = joinpath(dir, "privatekey")
 
     decoded_ssh_pkey = decode_ssh_private_key(ssh_pkey)
     open(pkey_filename, "w") do io
         println(io, decoded_ssh_pkey)
     end
-    run(`chmod 600 $pkey_filename`)
+    if is_linux
+        run(`chmod 600 $pkey_filename`)
+    end
 
     return pkey_filename
 end
@@ -146,7 +151,9 @@ function decode_ssh_private_key(content::AbstractString)::String
     end
 
     @info(
-        "This doesn't look like a raw SSH private key. I will assume that it is a Base64-encoded SSH private key. I will now try to Base64-decode it."
+        "This doesn't look like a raw SSH private key. 
+        I will assume that it is a Base64-encoded SSH private key. 
+        I will now try to Base64-decode it."
     )
     decoded_content = String(Base64.base64decode(content))
     return decoded_content

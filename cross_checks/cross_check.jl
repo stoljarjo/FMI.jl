@@ -206,7 +206,9 @@ function main()
     # set up the github access for the fmi-cross-checks repo and checkout the respective branch
     github_token = get(ENV, "GITHUB_TOKEN", "")
     tmp_dir = mktempdir(; cleanup=true)
-    pkey_filename = create_ssh_private_key(tmp_dir, github_token)
+    println("TMP-DIR: $tmp_dir")
+    pkey_filename = create_ssh_private_key(tmp_dir, github_token, os)
+    println("pkey_filename: $pkey_filename")
     
     cross_check_repo_name = get(ENV, "CROSS_CHECK_REPO_NAME", "")
     cross_check_repo_user = get(ENV, "CROSS_CHECK_REPO_USER", "")
