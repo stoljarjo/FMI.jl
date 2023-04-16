@@ -121,8 +121,8 @@ function create_ssh_private_key(dir::AbstractString, ssh_pkey::AbstractString, o
     # if is_linux
     #     run(`chmod 700 $dir`)
     # end
-    chmod(dir, 700)
-
+    # chmod(dir, 700)
+    run(`chmod 700 $dir`)
     pkey_filename = joinpath(dir, "privatekey")
 
     decoded_ssh_pkey = decode_ssh_private_key(ssh_pkey)
@@ -132,8 +132,8 @@ function create_ssh_private_key(dir::AbstractString, ssh_pkey::AbstractString, o
     # if is_linux
     #     run(`chmod 600 $pkey_filename`)
     # end
-    chmod(pkey_filename, 600)
-
+    # chmod(pkey_filename, 600)
+    run(`chmod 600 $pkey_filename`)
     return pkey_filename
 end
 
